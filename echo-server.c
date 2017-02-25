@@ -38,7 +38,6 @@ int main(int argc, char *argv[]){
 	struct option long_opt[] = {
 		{ "port",		1, 0, 'p' },
 		{ "listen",		1, 0, 'l' },
-		{ "password",	1, 0, 'P' },
 		{ "noquit",		0, 0, 'q' },
 		{ "noput",		0, 0, 'G' },
 		{ "debug",		0, 0, 'd' },
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]){
 	int optid;
 	while(1){
 
-		if( (opt = getopt_long(argc, argv, "p:l:P:qGdh", long_opt, &optid))  == -1)
+		if( (opt = getopt_long(argc, argv, "p:l:qGdh", long_opt, &optid))  == -1)
 			break;
 
 		switch(opt){
@@ -58,9 +57,6 @@ int main(int argc, char *argv[]){
 				break;
 			case 'l':
 				server_option.listen = atoi(optarg);
-				break;
-			case 'P':
-				server_option.password = optarg;
 				break;
 			case 'q':
 				server_option.noquit = 1;
@@ -75,7 +71,6 @@ int main(int argc, char *argv[]){
 				help();
 		}
 	}
-	debug("password:[%s]", server_option.password);
 
 	// created socket
 	sock_d = create_socket();
@@ -117,13 +112,7 @@ int main(int argc, char *argv[]){
 
 
 				// parser geting string
-				if( strstr(get, "server::") != NULL ){
-					if( strstr(get, "server::shutdown") != NULL ){
-						stat_serv = GET_PASS;
-						send(connect_d, "password: ", 10, 0);
-					}
-				}
-				else if( strstr(get, "client::") != NULL ){
+				if( strstr(get, "client::") != NULL ){
 					if( strstr(get, "client::quit") != NULL ){
 						stat_serv = SERVER_QUIT;
 						send(connect_d, "quit\n", 5, 0);
@@ -139,12 +128,7 @@ int main(int argc, char *argv[]){
 				else if(stat_serv == GET_MSG){
 					send(connect_d, buf, strlen(buf), 0);
 				}
-				else if(stat_serv == GET_PASS){
-					if( !strcmp(get, server_option.password) ){
-						fprintf(stderr, "password [%sOK%s]\n", CLR_OK, CLR_DEF);
-						quit();
-					}
-				}
+
 
 				// put string on stdin server
 				if( !server_option.noput ){
@@ -152,8 +136,7 @@ int main(int argc, char *argv[]){
 					/*	print simple message or exec command	*/
 					if(stat_serv == 0)
 						printf("GET> %s\n", get);
-					else
-						printf("[exec]: %s\n", get);
+
 
 					if(server_option.debug){
 						for(int i = 0;i < strlen(get); i++){

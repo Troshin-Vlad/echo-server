@@ -1,0 +1,24 @@
+	/*	echo-server	*/
+
+Author: Tr.Vlad
+Date: 25.02.2017
+Description:
+	It is simple echo-server (with support commands)
+	
+command:
+	- client:
+	client::quit - closed connect client
+	
+	- server:
+	no command
+
+(exit/quit):
+	Ctrl+C - exit work server
+
+Install:
+
+Makefile:
+$ make
+
+Manual:
+$ gcc echo-server.c -o echo-server
